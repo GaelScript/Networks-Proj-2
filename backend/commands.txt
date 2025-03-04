@@ -1,0 +1,22 @@
+get network snapshot:
+curl http://127.0.0.1:5000/network
+
+add a node:
+curl -X POST http://127.0.0.1:5000/node -H "Content-Type: application/json" -d '{"id": 1, "ip": 10}'
+
+add an edge:
+curl -X POST http://127.0.0.1:5000/edge -H "Content-Type: application/json" -d '{"source_id": 1, "target_id": 2}'
+
+run BFS:
+curl -X POST http://127.0.0.1:5000/bfs -H "Content-Type: application/json" -d '{"source_id": 1, "dest_id": 2}'
+
+delete a node:
+curl -X DELETE http://127.0.0.1:5000/node/1
+
+remove an edge:
+curl -X DELETE http://127.0.0.1:5000/edge -H "Content-Type: application/json" -d "{\"source_id\": 1, \"target_id\": 2}"
+
+clear the network:
+curl -X POST http://127.0.0.1:5000/reset
+
+keep in mind the variable values are examples, you don't actually need to use id: 1 and ip: 10, for example
