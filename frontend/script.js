@@ -18,7 +18,7 @@ let nodes = [];
 let edges = [];
 
 // Node visualization properties
-const NODE_RADIUS = 20;
+const NODE_RADIUS = 30;
 const COLORS = {
     DEFAULT: '#3498db',  // Blue
     VISITED: '#9b59b6',  // Purple
@@ -123,20 +123,31 @@ function drawEdges() {
 function drawNodes() {
     nodes.forEach(node => {
         const pos = getNodePosition(node.id, nodes.length);
+        
+        // Draw node circle
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
         ctx.fillStyle = node.inPath ? COLORS.PATH : 
                        node.visited ? COLORS.VISITED : 
                        COLORS.DEFAULT;
         ctx.fill();
+        
+        // Add a white border
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
         ctx.stroke();
 
-        // Draw node ID
+        // Draw text with background for better readability
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.font = '14px Arial';
-        ctx.fillText(node.id.toString(), pos.x, pos.y);
+        ctx.font = 'bold 13px Arial';
+        
+        // Draw ID on top
+        ctx.fillText(`ID: ${node.id}`, pos.x, pos.y - 8);
+        
+        // Draw IP below
+        ctx.fillText(`IP: ${node.ip}`, pos.x, pos.y + 8);
     });
 }
 
@@ -144,11 +155,15 @@ function getNodePosition(id, totalNodes) {
     // Ensure we have at least one node to avoid division by zero
     if (totalNodes === 0) return { x: canvas.width/2, y: canvas.height/2 };
     
-    // Calculate angle based on node ID and total number of nodes
-    const angle = ((id - 1) % totalNodes) * (2 * Math.PI / totalNodes);
+    // Calculate angle based on node's index in the total set
+    // Distribute nodes evenly around the circle regardless of their IDs
+    const nodeIndex = nodes.findIndex(n => n.id === id);
+    const angle = (nodeIndex * (2 * Math.PI / totalNodes));
     
-    // Calculate radius based on canvas size and number of nodes
-    const radius = Math.min(canvas.width, canvas.height) * 0.35;
+    // Use a smaller radius when there are more nodes
+    const baseRadius = Math.min(canvas.width, canvas.height) * 0.35;
+    // Adjust radius based on number of nodes to prevent overlap
+    const radius = baseRadius * (1 - Math.min(totalNodes - 4, 20) * 0.02);
     
     return {
         x: canvas.width/2 + radius * Math.cos(angle),
