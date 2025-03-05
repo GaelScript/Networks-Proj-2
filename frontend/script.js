@@ -104,9 +104,25 @@ function drawNetwork() {
     drawNodes();
 }
 
+function drawEdges() {
+    edges.forEach(edge => {
+        const startNode = nodes.find(n => n.id === edge.source);
+        const endNode = nodes.find(n => n.id === edge.target);
+        if (startNode && endNode) {
+            const start = getNodePosition(startNode.id, nodes.length);
+            const end = getNodePosition(endNode.id, nodes.length);
+            ctx.beginPath();
+            ctx.moveTo(start.x, start.y);
+            ctx.lineTo(end.x, end.y);
+            ctx.strokeStyle = '#2c3e50';
+            ctx.stroke();
+        }
+    });
+}
+
 function drawNodes() {
     nodes.forEach(node => {
-        const pos = getNodePosition(node.id);
+        const pos = getNodePosition(node.id, nodes.length);
         ctx.beginPath();
         ctx.arc(pos.x, pos.y, NODE_RADIUS, 0, Math.PI * 2);
         ctx.fillStyle = node.inPath ? COLORS.PATH : 
@@ -124,25 +140,16 @@ function drawNodes() {
     });
 }
 
-function drawEdges() {
-    edges.forEach(edge => {
-        const startNode = nodes.find(n => n.id === edge[0]);
-        const endNode = nodes.find(n => n.id === edge[1]);
-        if (startNode && endNode) {
-            const start = getNodePosition(startNode.id);
-            const end = getNodePosition(endNode.id);
-            ctx.beginPath();
-            ctx.moveTo(start.x, start.y);
-            ctx.lineTo(end.x, end.y);
-            ctx.strokeStyle = '#2c3e50';
-            ctx.stroke();
-        }
-    });
-}
-
-function getNodePosition(id) {
-    const angle = (id - 1) * (2 * Math.PI / nodes.length);
+function getNodePosition(id, totalNodes) {
+    // Ensure we have at least one node to avoid division by zero
+    if (totalNodes === 0) return { x: canvas.width/2, y: canvas.height/2 };
+    
+    // Calculate angle based on node ID and total number of nodes
+    const angle = ((id - 1) % totalNodes) * (2 * Math.PI / totalNodes);
+    
+    // Calculate radius based on canvas size and number of nodes
     const radius = Math.min(canvas.width, canvas.height) * 0.35;
+    
     return {
         x: canvas.width/2 + radius * Math.cos(angle),
         y: canvas.height/2 + radius * Math.sin(angle)
