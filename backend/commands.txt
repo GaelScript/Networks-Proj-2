@@ -20,3 +20,7 @@ clear the network:
 curl -X POST http://127.0.0.1:5000/reset
 
 keep in mind the variable values are examples, you don't actually need to use id: 1 and ip: 10, for example
+
+Also keep in mind that the url is going to be different, depending if youre running locally or using Railway.
+
+Railway URL is as follows: https://networks-proj-2-production.up.railway.app

@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from collections import deque
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 # Data Structures and Global Variables
 class Node:
