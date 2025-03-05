@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Network Visualization</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="controls">
+        <button onclick="addNode()">Add Node</button>
+        <button onclick="removeNode()">Remove Node</button>
+        <button onclick="addEdge()">Add Edge</button>
+        <button onclick="removeEdge()">Remove Edge</button>
+        <button onclick="resetNetwork()">Reset Network</button>
+        <div class="path-controls">
+          <input type="number" id="sourceNode" placeholder="Source Node ID" />
+          <input
+            type="number"
+            id="destNode"
+            placeholder="Destination Node ID"
+          />
+          <button onclick="findPath()">Find Path</button>
+        </div>
+      </div>
+      <div id="status-message"></div>
+      <canvas id="networkCanvas"></canvas>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
