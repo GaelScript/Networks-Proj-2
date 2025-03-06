@@ -32,8 +32,18 @@ button:hover {
     background-color: #45a049;
 }
 
-.path-controls {
+.path-controls, .generate-controls {
     margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+.generate-controls button {
+    background-color: #ff9800;
+}
+
+.generate-controls button:hover {
+    background-color: #e68a00;
 }
 
 input {

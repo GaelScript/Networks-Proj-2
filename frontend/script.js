@@ -111,13 +111,40 @@ function drawEdges() {
         if (startNode && endNode) {
             const start = getNodePosition(startNode.id, nodes.length);
             const end = getNodePosition(endNode.id, nodes.length);
+            
+            // Check if both nodes are in the path and are consecutive nodes
+            const isInPath = startNode.inPath && endNode.inPath && areNodesConsecutiveInPath(startNode.id, endNode.id);
+            
             ctx.beginPath();
             ctx.moveTo(start.x, start.y);
             ctx.lineTo(end.x, end.y);
-            ctx.strokeStyle = '#2c3e50';
+            
+            // Use red for path edges, default color for other edges
+            ctx.strokeStyle = isInPath ? '#e74c3c' : '#2c3e50';
+            ctx.lineWidth = isInPath ? 3 : 1; // Make path edges thicker
             ctx.stroke();
         }
     });
+}
+
+// Helper function to check if two nodes are consecutive in the path
+function areNodesConsecutiveInPath(id1, id2) {
+    // Get all nodes that are in the path
+    const pathNodes = nodes.filter(n => n.inPath);
+    
+    // Sort them by ID to approximate the path order
+    // This is a simplification and might not be 100% accurate for all path algorithms
+    pathNodes.sort((a, b) => a.id - b.id);
+    
+    // Check if nodes appear consecutively in the path
+    for (let i = 0; i < pathNodes.length - 1; i++) {
+        if ((pathNodes[i].id === id1 && pathNodes[i + 1].id === id2) ||
+            (pathNodes[i].id === id2 && pathNodes[i + 1].id === id1)) {
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 function drawNodes() {
@@ -300,4 +327,90 @@ window.onload = async function() {
     if (await checkAPIAvailability()) {
         await fetchNetwork();
     }
-}; 
+};
+
+// Add random network generation function
+async function generateRandomNetwork() {
+    // First reset the network
+    await resetNetwork();
+    
+    // Get number of nodes from input
+    const nodeCount = parseInt(document.getElementById('nodeCount').value) || 5;
+    if (nodeCount < 2) {
+        showStatus('Please enter at least 2 nodes');
+        return;
+    }
+    
+    debugLog(`Generating random network with ${nodeCount} nodes`);
+    showStatus(`Generating ${nodeCount} nodes...`);
+    
+    // Generate nodes with random IPs
+    const generatedNodes = [];
+    for (let i = 1; i <= nodeCount; i++) {
+        // Generate random IP (1-255 for simplicity)
+        const ip = Math.floor(Math.random() * 254) + 1;
+        
+        // Add node
+        const result = await testEndpoint('/node', 'POST', {
+            id: i,
+            ip: ip
+        });
+        
+        if (result.success) {
+            generatedNodes.push({ id: i, ip: ip });
+            debugLog(`Added node ${i} with IP ${ip}`);
+        } else {
+            showStatus(`Failed to add node ${i}: ${result.error}`);
+            return;
+        }
+    }
+    
+    // Ensure network is connected (minimum spanning tree)
+    // This guarantees all nodes are reachable
+    showStatus(`Creating connected network...`);
+    
+    // First create a spanning tree to ensure connectivity
+    for (let i = 1; i < nodeCount; i++) {
+        // Connect each node to a random previous node
+        const targetId = Math.floor(Math.random() * i) + 1;
+        
+        const result = await testEndpoint('/edge', 'POST', {
+            source_id: i + 1,
+            target_id: targetId
+        });
+        
+        if (!result.success) {
+            showStatus(`Failed to add edge ${i+1}-${targetId}: ${result.error}`);
+            return;
+        }
+        
+        debugLog(`Added edge from ${i+1} to ${targetId}`);
+    }
+    
+    // Add some random additional edges for complexity
+    const extraEdges = Math.floor(nodeCount * 0.5); // About 50% more edges
+    showStatus(`Adding ${extraEdges} extra random edges...`);
+    
+    for (let i = 0; i < extraEdges; i++) {
+        // Pick two random distinct nodes
+        const sourceId = Math.floor(Math.random() * nodeCount) + 1;
+        let targetId;
+        do {
+            targetId = Math.floor(Math.random() * nodeCount) + 1;
+        } while (targetId === sourceId);
+        
+        // Try to add the edge - if it fails (already exists), that's fine
+        const result = await testEndpoint('/edge', 'POST', {
+            source_id: sourceId,
+            target_id: targetId
+        });
+        
+        if (result.success) {
+            debugLog(`Added extra edge from ${sourceId} to ${targetId}`);
+        }
+    }
+    
+    // Refresh the display
+    await fetchNetwork();
+    showStatus(`Generated random network with ${nodeCount} nodes!`);
+} 

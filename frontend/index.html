@@ -14,6 +14,18 @@
         <button onclick="addEdge()">Add Edge</button>
         <button onclick="removeEdge()">Remove Edge</button>
         <button onclick="resetNetwork()">Reset Network</button>
+        <div class="generate-controls">
+          <input
+            type="number"
+            id="nodeCount"
+            placeholder="Number of nodes"
+            min="2"
+            value="5"
+          />
+          <button onclick="generateRandomNetwork()">
+            Generate Random Network
+          </button>
+        </div>
         <div class="path-controls">
           <input type="number" id="sourceNode" placeholder="Source Node ID" />
           <input
